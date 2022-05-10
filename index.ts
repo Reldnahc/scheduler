@@ -24,14 +24,18 @@ const client = new DiscordJS.Client({
 
 function randomMeme(){
     let roll = getRandomInt(15);
-    if (roll == 0 || true){
+    if (roll == 0){
         let searchTerm = searchTerms[getRandomInt(searchTerms.length)];
         axios.get('https://g.tenor.com/v1/search?q='+ searchTerm +'&key=' + tenorKey + '&limit=25').then((res: AxiosResponse<any>) => {
             let img = res.data.results[getRandomInt(res.data.results.length)].url;
-            (client.channels.cache.get('968678344449204264') as TextChannel ).send(img)
-                .then((img)=>{
-                console.log('posted: '+ img.toString());
-            });
+            if(process.env.ANIMEGIF){
+                (client.channels.cache.get(process.env.ANIMEGIF) as TextChannel ).send(img)
+                    .then((img)=>{
+                    console.log('posted: '+ img.toString());
+                });
+            }else{
+                console.log('no ANIME GIF env set')
+            }
         }).catch((error: any) => {
             console.error(error);
         });
@@ -40,32 +44,46 @@ function randomMeme(){
 
 
 function lockRolls (){
-    server.channels.fetch('963486768802435106')
-        .then(channel =>{
-            if(channel != null){
-                (channel as TextChannel).send("Rolls will be locked until 6:00AM CST");
-                channel.permissionOverwrites.edit(server.roles.everyone.id,
-                    {
-                        SEND_MESSAGES: false,
-                    }
-                ).then(()=>console.log('Rolls locked'))}});
+    if(process.env.ROLLS) {
+        server.channels.fetch(process.env.ROLLS)
+            .then(channel => {
+                if (channel != null) {
+                    (channel as TextChannel).send("Rolls will be locked until 6:00AM CST");
+                    channel.permissionOverwrites.edit(server.roles.everyone.id,
+                        {
+                            SEND_MESSAGES: false,
+                        }
+                    ).then(() => console.log('Rolls locked'))
+                }
+            });
+    }else{
+        console.log('no rolls env set')
+    }
 }
 
 function unlockRolls (){
-    server.channels.fetch('963486768802435106')
-        .then(channel =>{
-            if(channel != null){
-                (channel as TextChannel).send("Rolls is now unlocked until 12:00AM CST");
-                channel.permissionOverwrites.edit(server.roles.everyone.id,
-                    {
-                        SEND_MESSAGES: true,
-                    }
-                ).then(()=>console.log('Rolls unlocked'))}});
+    if(process.env.ROLLS) {
+        server.channels.fetch(process.env.ROLLS)
+            .then(channel => {
+                if (channel != null) {
+                    (channel as TextChannel).send("Rolls is now unlocked until 12:00AM CST");
+                    channel.permissionOverwrites.edit(server.roles.everyone.id,
+                        {
+                            SEND_MESSAGES: true,
+                        }
+                    ).then(() => console.log('Rolls unlocked'))
+                }
+            });
+    }else{
+        console.log('no rolls env set')
+    }
 }
 
 client.on('ready', () =>{
     console.log('Scheduler is online!');
-    client.guilds.fetch('963486233009483896').then(guild => server = guild);
+    if(process.env.SERVER){
+        client.guilds.fetch(process.env.SERVER).then(guild => server = guild);
+    }
     let scheduledLock = new cron.CronJob('0 0 * * *', lockRolls);
     let scheduledUnlock = new cron.CronJob('0 06 * * *', unlockRolls);
     let scheduledRandomMemes =  new cron.CronJob('* * * * *', randomMeme)
