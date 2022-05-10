@@ -1,15 +1,19 @@
-import DiscordJS, {Emoji, Intents, Message, Permissions, TextChannel} from 'discord.js'
+import DiscordJS, {Intents, TextChannel} from 'discord.js'
 import dotenv from 'dotenv'
 import {AxiosResponse} from "axios";
+
 const cron = require('cron');
 const axios = require('axios').default;
 
 dotenv.config()
+
 let server: DiscordJS.Guild;
 let tenorKey = process.env.TOKEN;
+
 let searchTerms = ['anime','anime_girl','anime_cute','Haikyu!!','mha','one_piece',
     'mob_psycho','chainsaw_man','one_punch_man','re_zero','rem','ram_re_zero','emilia',
-    'rukia_kuchiki','hoseki_no_kuni','naruto','zero_two','anime_girl','demon_slayer','anime_dance'];
+    'rukia_kuchiki','hoseki_no_kuni','naruto','zero_two','anime_girl','demon_slayer',
+    'anime_dance','gto','quintessential_quintuplets'];
 
 const client = new DiscordJS.Client({
     intents: [
