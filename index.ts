@@ -10,10 +10,10 @@ dotenv.config()
 let server: DiscordJS.Guild;
 let tenorKey = process.env.TOKEN;
 
-let searchTerms = ['anime','anime_girl','anime_cute','Haikyu!!','mha','one_piece',
-    'mob_psycho','chainsaw_man','one_punch_man','re_zero','rem','ram_re_zero','emilia',
-    'rukia_kuchiki','hoseki_no_kuni','naruto','zero_two','anime_girl','demon_slayer',
-    'anime_dance','gto','quintessential_quintuplets'];
+let searchTerms = ['anime', 'anime_girl', 'anime_cute', 'Haikyu!!', 'mha', 'one_piece',
+    'mob_psycho', 'chainsaw_man', 'one_punch_man', 're_zero', 'rem', 'ram_re_zero', 'emilia',
+    'rukia_kuchiki', 'hoseki_no_kuni', 'naruto', 'zero_two', 'anime_girl', 'demon_slayer',
+    'anime_dance', 'gto', 'quintessential_quintuplets'];
 
 const client = new DiscordJS.Client({
     intents: [
@@ -22,18 +22,18 @@ const client = new DiscordJS.Client({
     ]
 });
 
-function randomMeme(){
+function randomMeme() {
     let roll = getRandomInt(15);
-    if (roll == 0){
+    if (roll == 0) {
         let searchTerm = searchTerms[getRandomInt(searchTerms.length)];
-        axios.get('https://g.tenor.com/v1/search?q='+ searchTerm +'&key=' + tenorKey + '&limit=25').then((res: AxiosResponse<any>) => {
+        axios.get('https://g.tenor.com/v1/search?q=' + searchTerm + '&key=' + tenorKey + '&limit=25').then((res: AxiosResponse<any>) => {
             let img = res.data.results[getRandomInt(res.data.results.length)].url;
-            if(process.env.ANIMEGIF){
-                (client.channels.cache.get(process.env.ANIMEGIF) as TextChannel ).send(img)
-                    .then((img)=>{
-                    console.log('posted: '+ img.toString());
-                });
-            }else{
+            if (process.env.ANIMEGIF) {
+                (client.channels.cache.get(process.env.ANIMEGIF) as TextChannel).send(img)
+                    .then((img) => {
+                        console.log('posted: ' + img.toString());
+                    });
+            } else {
                 console.log('no ANIME GIF env set')
             }
         }).catch((error: any) => {
@@ -43,8 +43,8 @@ function randomMeme(){
 }
 
 
-function lockRolls (){
-    if(process.env.ROLLS) {
+function lockRolls() {
+    if (process.env.ROLLS) {
         server.channels.fetch(process.env.ROLLS)
             .then(channel => {
                 if (channel != null) {
@@ -56,13 +56,13 @@ function lockRolls (){
                     ).then(() => console.log('Rolls locked'))
                 }
             });
-    }else{
+    } else {
         console.log('no rolls env set')
     }
 }
 
-function unlockRolls (){
-    if(process.env.ROLLS) {
+function unlockRolls() {
+    if (process.env.ROLLS) {
         server.channels.fetch(process.env.ROLLS)
             .then(channel => {
                 if (channel != null) {
@@ -74,28 +74,28 @@ function unlockRolls (){
                     ).then(() => console.log('Rolls unlocked'))
                 }
             });
-    }else{
+    } else {
         console.log('no rolls env set')
     }
 }
 
-client.on('ready', () =>{
+client.on('ready', () => {
     console.log('Scheduler is online!');
-    if(process.env.SERVER){
+    if (process.env.SERVER) {
         client.guilds.fetch(process.env.SERVER).then(guild => server = guild);
     }
     let scheduledLock = new cron.CronJob('0 0 * * *', lockRolls);
     let scheduledUnlock = new cron.CronJob('0 06 * * *', unlockRolls);
-    let scheduledRandomMemes =  new cron.CronJob('* * * * *', randomMeme)
+    let scheduledRandomMemes = new cron.CronJob('* * * * *', randomMeme)
     scheduledLock.start();
     scheduledUnlock.start();
     scheduledRandomMemes.start();
 });
 
 client.on('message', message => {
-    if(message.channelId == '968678344449204264' && (message.author.id == '973378217786368070' || message.author.id == '973378394131669032')){
+    if (message.channelId == '968678344449204264' && (message.author.id == '973378217786368070' || message.author.id == '973378394131669032')) {
         let roll = getRandomInt(10);
-        if (roll == 0){
+        if (roll == 0) {
             axios.get('https://g.tenor.com/v1/search?q=anime_ratio&key=SZD8UMDWW0TT&limit=50').then((res: AxiosResponse<any>) => {
                 message.reply({
                     content: res.data.results[getRandomInt(res.data.results.length)].url,
@@ -106,8 +106,8 @@ client.on('message', message => {
         }
     }
 
-    if(message.content.match(/(^|\W)mid($|\W)/i)){
-        if(message.author.id == '411701506912550924'){
+    if (message.content.match(/(^|\W)mid($|\W)/i)) {
+        if (message.author.id == '411701506912550924') {
             message.react('👀');
             /*message.reply({
                 content: "I thought you were taking this out of your vocabulary.",
@@ -115,19 +115,19 @@ client.on('message', message => {
         }
         message.react('👎');
     }
-    if(message.content.match(/(^|\W)nasb($|\W)/i)){
+    if (message.content.match(/(^|\W)nasb($|\W)/i)) {
         message.react('✝');
         message.react('📖');
         message.react('🕊️');
     }
-    if(message.content.match(/(^|\W)lincoln($|\W)/i)){
+    if (message.content.match(/(^|\W)lincoln($|\W)/i)) {
         message.react('🦆');
         message.react('💤');
         message.react('🛌');
     }
-    if(message.content.match(/(^|\W)zim($|\W)/i)){
-       let num = getRandomInt(2)
-        switch (num){
+    if (message.content.match(/(^|\W)zim($|\W)/i)) {
+        let num = getRandomInt(2)
+        switch (num) {
             case 0:
                 message.react('🆙');
                 break;
@@ -137,8 +137,8 @@ client.on('message', message => {
         }
     }
 
-    message.mentions.users.forEach(function (user){
-        if(user.id == '162791920265986048' || user.id == '204608193429635072'){
+    message.mentions.users.forEach(function (user) {
+        if (user.id == '162791920265986048' || user.id == '204608193429635072') {
             message.react('🐶');
             message.react('🐱');
             message.react('🐷');
