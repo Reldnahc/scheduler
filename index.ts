@@ -24,7 +24,7 @@ const client = new DiscordJS.Client({
 
 function randomMeme(){
     let roll = getRandomInt(15);
-    if (roll == 0){
+    if (roll == 0 || true){
         let searchTerm = searchTerms[getRandomInt(searchTerms.length)];
         axios.get('https://g.tenor.com/v1/search?q='+ searchTerm +'&key=' + tenorKey + '&limit=25').then((res: AxiosResponse<any>) => {
             let img = res.data.results[getRandomInt(res.data.results.length)].url;
