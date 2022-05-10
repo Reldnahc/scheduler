@@ -30,7 +30,7 @@ function randomMeme(){
             let img = res.data.results[getRandomInt(res.data.results.length)].url;
             (client.channels.cache.get('968678344449204264') as TextChannel ).send(img)
                 .then((img)=>{
-                console.log('posted: '+ img);
+                console.log('posted: '+ img.toString());
             });
         }).catch((error: any) => {
             console.error(error);
