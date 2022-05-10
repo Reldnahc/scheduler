@@ -27,7 +27,11 @@ function randomMeme(){
     if (roll == 0){
         let searchTerm = searchTerms[getRandomInt(searchTerms.length)];
         axios.get('https://g.tenor.com/v1/search?q='+ searchTerm +'&key=' + tenorKey + '&limit=25').then((res: AxiosResponse<any>) => {
-            (client.channels.cache.get('968678344449204264') as TextChannel ).send(res.data.results[getRandomInt(res.data.results.length)].url);
+            let img = res.data.results[getRandomInt(res.data.results.length)].url;
+            (client.channels.cache.get('968678344449204264') as TextChannel ).send(img)
+                .then((img)=>{
+                console.log('posted: '+ img);
+            });
         }).catch((error: any) => {
             console.error(error);
         });
@@ -44,7 +48,7 @@ function lockRolls (){
                     {
                         SEND_MESSAGES: false,
                     }
-                )}});
+                ).then(()=>console.log('Rolls locked'))}});
 }
 
 function unlockRolls (){
@@ -56,7 +60,7 @@ function unlockRolls (){
                     {
                         SEND_MESSAGES: true,
                     }
-                )}});
+                ).then(()=>console.log('Rolls unlocked'))}});
 }
 
 client.on('ready', () =>{
