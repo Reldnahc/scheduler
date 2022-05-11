@@ -97,8 +97,6 @@ client.on('ready', async () => {
     scheduledRandomMemes.start();
     await mongoose.connect(uri);
     //loop through db of severs
-
-
 });
 
 
@@ -174,6 +172,7 @@ async function registerTrackWord(message: Message<boolean>, args: string[]) {
     let trackedWord: {word: String, emojis: Array<any>} = {word: args[1],emojis: emojis};
     server.trackedWords.push(trackedWord);
     server.save();
+    message.react("👍");
 }
 
 async function trackWord(word: string, message: Message<boolean>, emojis: string[], random: boolean = false) {
