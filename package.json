@@ -12,9 +12,11 @@
   "dependencies": {
     "axios": "^0.27.2",
     "cron": "^2.0.0",
+    "cron-validate": "^1.4.3",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "grapheme-splitter": "^1.0.4",
+    "lodash": "^4.17.21",
     "mongoose": "^6.3.3",
     "node-cron": "^3.0.0"
   }
