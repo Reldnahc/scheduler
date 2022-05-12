@@ -1,4 +1,4 @@
-import DiscordJS, {FetchGuildOptions, Guild, Intents, Message, TextChannel} from 'discord.js'
+import DiscordJS, { Intents, Message, TextChannel} from 'discord.js'
 import dotenv from 'dotenv'
 import {AxiosResponse} from "axios";
 import mongoose from "mongoose";
@@ -89,13 +89,7 @@ client.on('message',  async message => {
 async function restartCronJob(job: any, guildId: string) {
     cronMap.get(job.name).stop();
     cronMap.delete(job.name);
-    let guild;
-    client.guilds.cache.forEach(server=>{
-        if(server.id == guildId)
-            guild = server;
-    });
-    // @ts-ignore
-    await setupCronJob(job, guild);
+    await setupCronJob(job, guildId);
 }
 
 async function editFrequency(message: Message, args: any[]) {
@@ -191,16 +185,16 @@ async function registerCronJob(message: Message, args: string[]) {
         message.react('👍')
     });
 }
-async function setupCronJob(job: {
-    searchTerms: any;
-    frequency: number; message: string; job: string; channelId: string; cronJob: string; name: string }, guild: [string, Guild] | (string | FetchGuildOptions)[]){
+async function setupCronJob(job: { searchTerms: any; frequency: number; message: string; job: string; channelId: string; cronJob: string; name: string }, guildId: string){
 
     function lockUnlockChannel(){
         let sendMsgPerm = true; // unlock
         if (job.job == "lock"){
             sendMsgPerm = false;
         }
-        client.guilds.fetch(guild[0])
+
+
+        client.guilds.fetch(guildId)
             .then(guild => guild.channels.fetch(job.channelId)
                 .then(channel=> {
                     if (channel != null) {
@@ -248,7 +242,7 @@ async function setupCronJobs() {
     for (const guild of client.guilds.cache) {
         let server = await Server.findOne({discId: guild[0]});
         for(const job of server.cronJobs){
-            await setupCronJob(job, guild);
+            await setupCronJob(job, guild[0]);
         }
     }
 }
