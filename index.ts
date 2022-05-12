@@ -15,10 +15,7 @@ const uri = process.env.DB;
 let tenorKey = process.env.TOKEN;
 let cronMap = new Map<string, any>();
 
-/*let searchTerms = ['anime', 'anime_girl', 'anime_cute', 'Haikyu!!', 'mha', 'one_piece',
-    'mob_psycho', 'chainsaw_man', 'one_punch_man', 're_zero', 'rem', 'ram_re_zero', 'emilia',
-    'rukia_kuchiki', 'hoseki_no_kuni', 'naruto', 'zero_two', 'anime_girl', 'demon_slayer',
-    'anime_dance', 'gto_anime', 'quintessential_quintuplets','dragon_ball','guilty_gear'];*/
+
 
 const client = new DiscordJS.Client({
     intents: [
@@ -101,7 +98,7 @@ async function restartCronJob(job: any, guildId: string) {
     await setupCronJob(job, guild);
 }
 
-async function editFrequency(message: Message<boolean>, args: any[]) {
+async function editFrequency(message: Message, args: any[]) {
     let server = await getServerByMessage(message);
 
     for(const job of server.cronJobs){
@@ -188,8 +185,11 @@ async function registerCronJob(message: Message, args: string[]) {
            guild = server;
     });
 
+
     // @ts-ignore
-    await setupCronJob(job, guild);
+    setupCronJob(job, guild).then(()=>{
+        message.react('👍')
+    });
 }
 async function setupCronJob(job: {
     searchTerms: any;
@@ -241,7 +241,6 @@ async function setupCronJob(job: {
             break;
     }
     scheduledJob.start();
-    console.log(cronMap);
     cronMap.set(job.name,scheduledJob);
 }
 
@@ -299,6 +298,7 @@ async function registerTrackWord(message: Message, args: string[]) {
     }
     const splitter = new GraphemeSplitter();
     let emojis = splitter.splitGraphemes(args[2]);
+
     const regex_emoji = /[\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}\u{1F9B0}-\u{1F9B3}]/u;
     emojis.forEach(emoji=>{
         if(!regex_emoji.test(emoji)){
@@ -379,4 +379,4 @@ async function getServerByMessage(message: Message) {
     return server;
 }
 
-client.login(process.env.TOKEN).then(r => {console.log(r)});
+client.login(process.env.TOKEN).then(() => {});
