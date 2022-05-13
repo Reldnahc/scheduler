@@ -24,15 +24,21 @@ const client = new DiscordJS.Client({
     ]
 });
 
-const cronjobs = ['lock','unlock','postgif'];
+const cronJobs = ['lock','unlock','postgif','hide','show'];
 
 client.on('ready', async () => {
-    if(uri) await mongoose.connect(uri.toString()); else throw new Error('no db uri');
+    if(uri){
+        mongoose.connect(uri.toString())
+            .then(()=>{console.log('connected to database')});
+    }
+    else{
+        throw new Error('no db uri');
+    }
     await setupCronJobs();
     console.log('Scheduler is online!');
 });
 
-client.on('message',  async message => {
+client.on('messageCreate',  async message => {
     if(message.author.bot) return;
     let server = await Server.findOne({discId: message.guildId});
     if(server){
@@ -151,8 +157,10 @@ async function removeSearchTerm(message: Message, args: any[]) {
     }
     await message.reply({content: "no job with this name"});
 }
+
 async function registerCronJob(message: Message, args: string[]) {
-    if(!cronjobs.includes(args[1])) {
+
+    if(!cronJobs.includes(args[1])) {
         await message.reply({content: "Unknown cron job."})
         return;
     }
@@ -168,44 +176,73 @@ async function registerCronJob(message: Message, args: string[]) {
         await message.reply({content: "Job needs a name."})
         return;
     }
+    let freq = 15;
+    let searchTerms = ['anime'];
+
+    if(args[1] == 'postgif'){
+        if(args[6]){
+            let args6 = parseInt(args[6])
+            if(!args6 || args6 <= 0){
+                await message.reply({content: "frequency must be an integer greater than 0"});
+                return;
+            }
+            freq = args6;
+            if(args[7]){
+                searchTerms = [];
+                for (let i = 7; i < args.length; i++){
+                    searchTerms.push(args[i]);
+                }
+            }
+        }
+    }
 
     let server = await getServerByMessage(message);
-    let job = {job: args[1], channelId: args[2], cronJob: args[4], message: args[3], name: args[5], frequency: 15, searchTerms: ['anime'] };
+    let job = {job: args[1], channelId: args[2], cronJob: args[4], message: args[3], name: args[5], frequency: freq, searchTerms: searchTerms };
     server.cronJobs.push(job);
     server.save();
-    let guild;
-    client.guilds.cache.forEach(server=>{
-       if(server.id == message.guildId)
-           guild = server;
-    });
 
-
-    // @ts-ignore
-    setupCronJob(job, guild).then(()=>{
-        message.react('👍')
-    });
+    if(message.guildId){
+        setupCronJob(job, message.guildId.toString()).then(()=>{
+            message.react('👍')
+        });
+    }else{
+       await  message.reply('Failed to set up job.');
+    }
 }
 async function setupCronJob(job: { searchTerms: any; frequency: number; message: string; job: string; channelId: string; cronJob: string; name: string }, guildId: string){
 
-    function lockUnlockChannel(){
-        let sendMsgPerm = true; // unlock
-        if (job.job == "lock"){
-            sendMsgPerm = false;
+    function cronTaskChannel(){
+        let options: any = {};
+        switch(job.job){
+            case "lock":
+                options.SEND_MESSAGES = false;
+                break;
+            case "unlock":
+                options.SEND_MESSAGES = true;
+                break;
+            case "hide":
+                options.VIEW_CHANNEL = false;
+                break;
+            case "show":
+                options.VIEW_CHANNEL = true;
+                break;
         }
-
 
         client.guilds.fetch(guildId)
             .then(guild => guild.channels.fetch(job.channelId)
                 .then(channel=> {
                     if (channel != null) {
-                        (channel as TextChannel).send(job.message);
-                        channel.permissionOverwrites.edit(guild.roles.everyone.id,
-                            {
-                                SEND_MESSAGES: sendMsgPerm,
-                            }
-                        )
+                        if(job.message != "none"){
+                            (channel as TextChannel).send(job.message);
+                        }
+                        channel.permissionOverwrites.edit(guild.roles.everyone.id, options)
+                            .catch(err => {
+                                (channel as TextChannel).send(err);
+                                });
+                        console.info(new Date().toTimeString() + "Cron job complete. \nname: " + job.name +
+                            "\njob: " + job.job + "\nchannel: " + job.channelId + "\nguild: "+ guildId +"\ncron: " + job.cronJob);
                     }
-                }));
+                })).catch(err => console.log(err));
     }
 
     function postGif(){
@@ -214,9 +251,10 @@ async function setupCronJob(job: { searchTerms: any; frequency: number; message:
             let searchTerm = job.searchTerms[getRandomInt(job.searchTerms.length)];
             axios.get('https://g.tenor.com/v1/search?q=' + searchTerm + '&key=' + tenorKey + '&limit=25').then((res: AxiosResponse) => {
                 let img = res.data.results[getRandomInt(res.data.results.length)].url;
-                (client.channels.cache.get(job.channelId) as TextChannel).send(img)
+                let channel = (client.channels.cache.get(job.channelId) as TextChannel);
+                channel.send(img)
                     .then((img) => {
-                        console.log('posted: ' + img.toString());
+                        console.info(new Date().toTimeString() + ' posted: ' + img.toString() + " in channel: " + channel.id + "(" + channel.name + ") in server: " + channel.guildId + "(" + channel.guild.name + ")");
                     });
             }).catch((error: any) => {
                 console.error(error);
@@ -228,7 +266,9 @@ async function setupCronJob(job: { searchTerms: any; frequency: number; message:
     switch(job.job){
         case "unlock":
         case "lock":
-            scheduledJob = new cronReq.CronJob(job.cronJob,lockUnlockChannel);
+        case "hide":
+        case "show":
+            scheduledJob = new cronReq.CronJob(job.cronJob,cronTaskChannel);
             break;
         case "postgif":
             scheduledJob = new cronReq.CronJob(job.cronJob,postGif);
@@ -241,8 +281,10 @@ async function setupCronJob(job: { searchTerms: any; frequency: number; message:
 async function setupCronJobs() {
     for (const guild of client.guilds.cache) {
         let server = await Server.findOne({discId: guild[0]});
-        for(const job of server.cronJobs){
-            await setupCronJob(job, guild[0]);
+        if(server){
+            for(const job of server.cronJobs){
+                await setupCronJob(job, guild[0]);
+            }
         }
     }
 }
