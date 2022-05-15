@@ -14,6 +14,10 @@ export class PostGifCommand extends Command {
             limit = 1;
         }
         axios.get('https://g.tenor.com/v1/search?q=' + this.args[1] + '&key=' + process.env.TENOR + '&limit=' + limit).then((res: AxiosResponse) => {
+            if(!res.data.results.length){
+                this.message.reply({content: "No gif(s) found."});
+                return;
+            }
             let randomInts = [];
             while(randomInts.length < parseInt(this.args[2])) {
                 let r = Math.floor(Math.random() * res.data.results.length);
