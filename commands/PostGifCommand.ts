@@ -9,8 +9,11 @@ export class PostGifCommand extends Command {
         if (!this.args[2]){
             this.args[2] = '1';
         }
-
-        axios.get('https://g.tenor.com/v1/search?q=' + this.args[1] + '&key=' + process.env.TENOR + '&limit=25').then((res: AxiosResponse) => {
+        let limit = 25;
+        if(this.args[2] == '1'){
+            limit = 1;
+        }
+        axios.get('https://g.tenor.com/v1/search?q=' + this.args[1] + '&key=' + process.env.TENOR + '&limit=' + limit).then((res: AxiosResponse) => {
             let randomInts = [];
             while(randomInts.length < parseInt(this.args[2])) {
                 let r = Math.floor(Math.random() * res.data.results.length);
