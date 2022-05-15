@@ -1,11 +1,11 @@
-import DiscordJS, { Intents, Message} from 'discord.js'
+import DiscordJS, {Intents, Message, TextChannel} from 'discord.js'
 import dotenv from 'dotenv'
 import mongoose from "mongoose";
 import {Server, User} from "./schemas";
-
 import {TaskFactory} from "./task";
 import {CommandManager} from "./commands/CommandManager";
 import {parseInt} from "lodash";
+import {AxiosResponse, default as axios} from "axios";
 const cronReq = require('cron');
 const _ = require('lodash');
 
@@ -49,6 +49,20 @@ client.on('messageCreate',  async message => {
         let regex = /"([^"]*)"|(\S+)/g;
         let args = (content.match(regex) || []).map(m => m.replace(regex, '$1$2'));
         await commandManager.runCommand(message, args)
+    }else{
+        let roll = getRandomInt(1000);
+        if(roll == 0){
+            axios.get('https://g.tenor.com/v1/search?q=' + "anime_ratio" + '&key=' + process.env.TENOR + '&limit=25').then((res: AxiosResponse) => {
+                let img = res.data.results[Math.floor(Math.random() * res.data.results.length)].url;
+                let channel = (client.channels.cache.get(message.channelId) as TextChannel);
+                message.reply({content: img})
+                    .then((img) => {
+                        console.info(new Date().toTimeString() + ' posted: ' + img.toString() + " in channel: " + channel.id + "(" + channel.name + ") in server: " + channel.guildId + "(" + channel.guild.name + ")");
+                    });
+            }).catch((error: any) => {
+                console.error(error);
+            });
+        }
     }
 });
 //todo make cron manager

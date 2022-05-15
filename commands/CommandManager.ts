@@ -8,6 +8,7 @@ import {CronDeleteCommand} from "./CronDeleteCommand";
 import {AddTermCommand} from "./AddTermCommand";
 import {RemoveTermCommand} from "./RemoveTermCommand";
 import {EditFrequencyCommand} from "./EditFrequencyCommand";
+import {PostGifCommand} from "./PostGifCommand";
 
 
 
@@ -43,6 +44,9 @@ export class CommandManager{//todo make singleton
                 break;
             case EditFrequencyCommand.aliases.includes(args[0]):
                 await this.validateAndRunCommand(new EditFrequencyCommand(this.client, message, args));
+                break;
+            case PostGifCommand.aliases.includes(args[0]):
+                await this.validateAndRunCommand(new PostGifCommand(this.client, message, args));
                 break;
             default:
                 console.log("unknown command: %" + args[0]);
