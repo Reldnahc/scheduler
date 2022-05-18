@@ -115,12 +115,18 @@ export async function deleteCronJob(message: Message, args: any[]) {
 async function trackWord(word: string, message: Message, emojis: string[], random: boolean = false) {
     const regex = new RegExp("(^|\\W)" + word + "($|\\W)", 'gi');
     if (message.content.match(regex)) {
+
         if(!random){
             emojis.forEach((emoji) => {
-                message.react(emoji);
+                message.react(emoji).catch(err => {
+                        console.error(err);
+                    }
+                );
             });
         }else{
-            await message.react(emojis[getRandomInt(emojis.length)]);
+             message.react(emojis[getRandomInt(emojis.length)]).catch(err => {
+                console.error(err);
+            });
         }
 
         let user = await User.findOne({discId: message.author.id, server: message.guildId});
