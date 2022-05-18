@@ -42,7 +42,7 @@ export class PostGifCommand extends Command {
     async usage() {
         await this.message.reply({
             content: "aliases: pg, gif, postgif \n" +
-                "%postgif <search term> <number of gifs 1-15>"
+                "%postgif <search term> <number of gifs 1-5>"
         });
     }
 
@@ -51,7 +51,7 @@ export class PostGifCommand extends Command {
         if(this.args[2]){
             let arg2 = parseInt(this.args[2])
             if(arg2){
-                if(arg2 < 1 || arg2 > 15){
+                if(arg2 < 1 || arg2 > 5){
                     return false;
                 }
             }else{
