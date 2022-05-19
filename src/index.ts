@@ -154,5 +154,6 @@ export async function getServerByMessage(message: Message) {
     }
     return server;
 }
-
+console.log();
 client.login(process.env.TOKEN).then(() => {});
+
