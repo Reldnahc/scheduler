@@ -30,7 +30,7 @@ export class AddTermCommand extends Command {
         });
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         return true;
     }
 

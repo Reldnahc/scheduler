@@ -11,7 +11,7 @@ export abstract class Command {
     }
     abstract execute(): void;
     abstract usage(): void;
-    abstract validateArgs():boolean;
+    abstract validateArgs():Promise<boolean>;
     abstract validatePermissions():boolean;
 }
 

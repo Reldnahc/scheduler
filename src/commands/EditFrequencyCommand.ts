@@ -24,10 +24,10 @@ export class EditFrequencyCommand extends Command {
         await this.message.reply({content: "no job with this name"});
     }
 
-    usage(): void {
+    usage(): void {//todo
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         if(!parseInt(this.args[2])) return false;
         return true;
     }

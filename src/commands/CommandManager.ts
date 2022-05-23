@@ -9,9 +9,7 @@ import {AddTermCommand} from "./AddTermCommand";
 import {RemoveTermCommand} from "./RemoveTermCommand";
 import {EditFrequencyCommand} from "./EditFrequencyCommand";
 import {PostGifCommand} from "./PostGifCommand";
-
-
-
+import {AnnoyUserCommand} from "./AnnoyUserCommand";
 
 export class CommandManager{//todo make singleton
     client: DiscordJS.Client;
@@ -48,15 +46,19 @@ export class CommandManager{//todo make singleton
             case PostGifCommand.aliases.includes(args[0]):
                 await this.validateAndRunCommand(new PostGifCommand(this.client, message, args));
                 break;
+            case AnnoyUserCommand.aliases.includes(args[0]):
+                await this.validateAndRunCommand(new AnnoyUserCommand(this.client, message, args));
+                break;
             default:
                 console.log("unknown command: %" + args[0]);
         }
     }
 
     private async validateAndRunCommand(command: Command) {
+        let valid = await command.validateArgs();
         if (!command.validatePermissions()) {
             await command.message.reply({content: "You dont have permission to use this command"});
-        } else if (!command.validateArgs()) {
+        } else if (!valid) {
             command.usage();
         } else {
             command.execute()

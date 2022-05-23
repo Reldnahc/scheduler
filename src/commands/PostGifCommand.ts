@@ -46,7 +46,7 @@ export class PostGifCommand extends Command {
         });
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         if(!this.args[1]) return false;
         if(this.args[2]){
             let arg2 = parseInt(this.args[2])
