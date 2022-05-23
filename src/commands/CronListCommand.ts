@@ -38,7 +38,7 @@ export class CronListCommand extends Command{
         });
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         return true;
     }
 

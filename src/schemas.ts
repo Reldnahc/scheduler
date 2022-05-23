@@ -19,6 +19,11 @@ export const serverSchema = new Schema({
         job: String,
         searchTerms: {type: Array, default: ['anime']},
         frequency: {type: Number, default: 15}}],
+    annoyedUsers: [{
+        discId: String,
+        gifs: Array,
+        emojis: Array,
+    }],
 
 });
 

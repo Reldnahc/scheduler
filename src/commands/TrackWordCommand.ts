@@ -34,7 +34,7 @@ export class TrackWordCommand extends Command{
         await this.message.react("👍");
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         if(!this.args[1]) return false;
         if(!this.regex_emoji.test(this.args[2])) return false;//not emoji
 

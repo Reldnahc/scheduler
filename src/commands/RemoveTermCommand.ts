@@ -31,7 +31,7 @@ export class RemoveTermCommand extends Command {
         });
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         return true;
     }
 

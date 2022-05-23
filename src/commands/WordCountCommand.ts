@@ -29,7 +29,7 @@ export class WordCountCommand extends Command{
         });
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         return true;
     }
 

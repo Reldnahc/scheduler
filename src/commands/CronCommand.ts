@@ -43,7 +43,7 @@ export class CronCommand extends Command{
         });
     }
 
-    validateArgs(): boolean {
+    async validateArgs(): Promise<boolean> {
         if(this.args.length < 6) return false;
         if(!cronJobs.includes(this.args[1])) return false;
         if(!cron(this.args[4]).isValid()) return false;
