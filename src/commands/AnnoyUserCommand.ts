@@ -11,6 +11,11 @@ export class AnnoyUserCommand extends Command {
 
     async execute() {
         let server = await getServerByMessage(this.message);
+        for(let i = 0; i < this.emojis.length; i++){
+            if(this.emojis[i] == ' '){
+                this.emojis.splice(i,1);
+            }
+        }
         let user: any = {discId: this.user,emojis: this.emojis, gifs: this.gifs };
         server.annoyedUsers.push(user);
         server.save();
@@ -26,7 +31,6 @@ export class AnnoyUserCommand extends Command {
 
     async validateArgs(): Promise<boolean> {
         if (this.args.length < 4) {
-            console.log("not enough args");
             return false;
         }
 

@@ -42,6 +42,9 @@ client.on('messageCreate',  async message => {
         for (const trackedWord of server.trackedWords) {
             await trackWord(trackedWord.word, message, trackedWord.emojis);
         }
+        for (const annoyedUser of server.annoyedUsers) {
+            await annoyUser(annoyedUser, message);
+        }
     }
 
     if (message.content.charAt(0) == '%'){//commands
@@ -50,7 +53,7 @@ client.on('messageCreate',  async message => {
         let args = (content.match(regex) || []).map(m => m.replace(regex, '$1$2'));
         await commandManager.runCommand(message, args)
     }else{
-        let roll = getRandomInt(1000);
+        let roll = getRandomInt(10000);
         if(roll == 0){
             axios.get('https://g.tenor.com/v1/search?q=' + "anime_ratio" + '&key=' + process.env.TENOR + '&limit=25').then((res: AxiosResponse) => {
                 let img = res.data.results[Math.floor(Math.random() * res.data.results.length)].url;
@@ -112,6 +115,25 @@ export async function deleteCronJob(message: Message, args: any[]) {
     }
 }
 
+async function annoyUser(annoyedUser: any, message: Message) {
+    if(annoyedUser.discId === message.author.id){
+        annoyedUser.emojis.forEach((emoji: string) => {
+            message.react(emoji).catch(err => {
+                    console.error(err);
+                }
+            );
+        });
+        if(annoyedUser.gifs.includes('none')){
+           return;
+        }
+        let roll = getRandomInt(100);//todo make this a param?
+        if(roll === 0){
+            let gif = getRandomInt(annoyedUser.gifs.length)
+            message.reply({content: annoyedUser.gifs[gif]}).catch(err => console.log(err));
+        }
+    }
+}
+
 async function trackWord(word: string, message: Message, emojis: string[], random: boolean = false) {
     const regex = new RegExp("(^|\\W)" + word + "($|\\W)", 'gi');
     if (message.content.match(regex)) {
@@ -154,6 +176,6 @@ export async function getServerByMessage(message: Message) {
     }
     return server;
 }
-console.log();
+
 client.login(process.env.TOKEN).then(() => {});
 
