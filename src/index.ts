@@ -25,7 +25,7 @@ const commandManager = new CommandManager(client);
 
 client.on('ready', async () => {
     if(uri){
-       await mongoose.connect(uri.toString())
+        mongoose.connect(uri.toString())
             .then(()=>{console.log('connected to database')});
     }
     else{
