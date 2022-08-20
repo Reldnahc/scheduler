@@ -25,7 +25,7 @@ const commandManager = new CommandManager(client);
 
 client.on('ready', async () => {
     if(uri){
-        mongoose.connect(uri.toString())
+       await mongoose.connect(uri.toString())
             .then(()=>{console.log('connected to database')});
     }
     else{
@@ -126,7 +126,7 @@ async function annoyUser(annoyedUser: any, message: Message) {
         if(annoyedUser.gifs.includes('none')){
            return;
         }
-        let roll = getRandomInt(100);//todo make this a param?
+        let roll = getRandomInt(500);//todo make this a param?
         if(roll === 0){
             let gif = getRandomInt(annoyedUser.gifs.length)
             message.reply({content: annoyedUser.gifs[gif]}).catch(err => console.log(err));
