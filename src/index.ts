@@ -1,4 +1,4 @@
-import DiscordJS, {Intents, Message, TextChannel} from 'discord.js'
+import DiscordJS, {Intents, Message, TextChannel, VoiceChannel} from 'discord.js'
 import dotenv from 'dotenv'
 import mongoose from "mongoose";
 import {Server, User} from "./schemas";
@@ -93,6 +93,19 @@ async function setupCronJobs() {
             for(const job of server.cronJobs){
                 await setupCronJob(job, guild[0]);
             }
+
+            async function muteKwout(){
+               const kwout = await guild[1].members.fetch('235231820583534594');
+               const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626');
+
+               const kwoutVoice = kwout.voice;
+               if (kwoutVoice.deaf){
+                   await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
+               }
+            }
+
+            let cronJob = new cronReq.CronJob("* * * * *", muteKwout);
+            cronJob.start();
         }
     }
 }
