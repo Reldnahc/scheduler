@@ -94,17 +94,25 @@ async function setupCronJobs() {
                 await setupCronJob(job, guild[0]);
             }
 
-            async function muteKwout(){
+            async function moveKwout(){
                const kwout = await guild[1].members.fetch('235231820583534594');
                const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626');
-
-               const kwoutVoice = kwout.voice;
-               if (kwoutVoice.deaf){
-                   await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
+               console.log('Trying to move kwout');
+               if(kwout && kwoutDeafChannel){
+                   const kwoutVoice = kwout.voice;
+                   console.log(kwoutVoice.deaf);
+                   if (kwoutVoice.deaf && kwoutVoice.channel != null){
+                       await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
+                       console.log('Moved kwout');
+                   }
+               }else{
+                   console.log('Trying to move kwout failed');
+                   console.log('user: ' + kwout);
+                   console.log('channel: ' + kwoutDeafChannel);
                }
             }
 
-            let cronJob = new cronReq.CronJob("* * * * *", muteKwout);
+            let cronJob = new cronReq.CronJob("* * * * *", moveKwout);
             cronJob.start();
         }
     }
