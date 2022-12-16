@@ -96,10 +96,10 @@ async function setupCronJobs() {
             }
 
             async function moveKwout(){
-               let kwout = await guild[1].members.fetch({user: '220276329646391296', force: true}).catch((error: any) => {
+               let kwout = await guild[1].members.fetch({user: '235231820583534594', force: true}).catch((error: any) => {
                    console.log(error);
                });
-               const kwoutDeafChannel = await guild[1].channels.fetch('1053154440422621275').catch((error: any) => {
+               const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626').catch((error: any) => {
                });
                console.log('Trying to move kwout');
                if(kwout && kwoutDeafChannel){
