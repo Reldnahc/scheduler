@@ -16,7 +16,8 @@ let cronMap = new Map<string, any>();
 const client = new DiscordJS.Client({
     intents: [
         Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_VOICE_STATES,
     ]
 });
 const taskFactory = new TaskFactory(client);
@@ -95,17 +96,18 @@ async function setupCronJobs() {
             }
 
             async function moveKwout(){
-               let kwout = await guild[1].members.fetch({user: '235231820583534594', force: true}).catch((error: any) => {
+               let kwout = await guild[1].members.fetch({user: '220276329646391296', force: true}).catch((error: any) => {
+                   console.log(error);
                });
-               const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626').catch((error: any) => {
+               const kwoutDeafChannel = await guild[1].channels.fetch('1053154440422621275').catch((error: any) => {
                });
                console.log('Trying to move kwout');
                if(kwout && kwoutDeafChannel){
                    const kwoutVoice = kwout.voice;
                    console.log(kwoutVoice.selfDeaf);
-                   console.log(kwoutVoice.channel);
-                   if (kwoutVoice.selfDeaf && kwoutVoice.channel != null && kwoutVoice.channel != kwoutDeafChannel as VoiceChannel){
-                       await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
+                   console.log(kwoutVoice.channel?.name);
+                   if (kwoutVoice.selfDeaf && kwoutVoice.channel != null && kwoutVoice.channel.id != kwoutDeafChannel.id){
+                       await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel).catch();
                        console.log('Moved kwout');
                    }
                }else{
@@ -113,7 +115,7 @@ async function setupCronJobs() {
                }
             }
 
-            let cronJob = new cronReq.CronJob("* * * * *", moveKwout);
+            const cronJob = new cronReq.CronJob("* * * * *", moveKwout);
             cronJob.start();
             console.log('started kwout job');
         }
