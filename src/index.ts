@@ -114,6 +114,7 @@ async function setupCronJobs() {
 
             let cronJob = new cronReq.CronJob("* * * * *", moveKwout);
             cronJob.start();
+            console.log('started kwout job');
         }
     }
 }
