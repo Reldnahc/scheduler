@@ -95,8 +95,7 @@ async function setupCronJobs() {
             }
 
             async function moveKwout(){
-               const kwout = await guild[1].members.fetch({user: '235231820583534594', force: true}).catch((error: any) => {
-                   console.error("kwouts not here");
+               let kwout = await guild[1].members.fetch({user: '235231820583534594', force: true}).catch((error: any) => {
                });
                const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626').catch((error: any) => {
 
@@ -105,15 +104,12 @@ async function setupCronJobs() {
                if(kwout && kwoutDeafChannel){
                    const kwoutVoice = kwout.voice;
                    console.log(kwoutVoice.selfDeaf);
-                   console.log(kwoutVoice.deaf);
-                   console.log(kwoutVoice.serverDeaf);
-                   console.log(kwoutVoice.channel);
-                   if (kwoutVoice.selfDeaf && kwoutVoice.channel != null){
+                   if (kwoutVoice.selfDeaf && kwoutVoice.channel != null && kwoutVoice.channel != kwoutDeafChannel as VoiceChannel){
                        await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
                        console.log('Moved kwout');
                    }
                }else{
-                   console.log('Trying to move kwout failed');
+                   console.error("kwouts not here");
                    console.log('user: ' + kwout);
                    console.log('channel: ' + kwoutDeafChannel);
                }
