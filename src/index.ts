@@ -98,20 +98,18 @@ async function setupCronJobs() {
                let kwout = await guild[1].members.fetch({user: '235231820583534594', force: true}).catch((error: any) => {
                });
                const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626').catch((error: any) => {
-
                });
                console.log('Trying to move kwout');
                if(kwout && kwoutDeafChannel){
                    const kwoutVoice = kwout.voice;
                    console.log(kwoutVoice.selfDeaf);
+                   console.log(kwoutVoice.channel);
                    if (kwoutVoice.selfDeaf && kwoutVoice.channel != null && kwoutVoice.channel != kwoutDeafChannel as VoiceChannel){
                        await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
                        console.log('Moved kwout');
                    }
                }else{
-                   console.error("kwouts not here");
-                   console.log('user: ' + kwout);
-                   console.log('channel: ' + kwoutDeafChannel);
+                   console.error("kwout or the channel is not here");
                }
             }
 
