@@ -96,15 +96,13 @@ async function setupCronJobs() {
 
             async function moveKwout(){
                const kwout = await guild[1].members.fetch('235231820583534594');
-               const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626');
+               const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626') as VoiceChannel;
                console.log('Trying to move kwout');
                if(kwout && kwoutDeafChannel){
                    const kwoutVoice = kwout.voice;
-                   console.log(kwout);
-                   console.log(kwoutVoice.deaf);
-                   console.log(kwoutVoice);
-                   if (kwoutVoice.deaf && kwoutVoice.channel != null){
-                       await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
+                   console.log(kwoutVoice.selfDeaf);
+                   if (kwoutVoice.selfDeaf && kwoutVoice.channel != null && kwoutVoice.channel != kwoutDeafChannel){
+                       await kwoutVoice.setChannel(kwoutDeafChannel);
                        console.log('Moved kwout');
                    }
                }else{
