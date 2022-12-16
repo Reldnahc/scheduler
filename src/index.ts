@@ -100,7 +100,9 @@ async function setupCronJobs() {
                console.log('Trying to move kwout');
                if(kwout && kwoutDeafChannel){
                    const kwoutVoice = kwout.voice;
+                   console.log(kwout);
                    console.log(kwoutVoice.deaf);
+                   console.log(kwoutVoice);
                    if (kwoutVoice.deaf && kwoutVoice.channel != null){
                        await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel);
                        console.log('Moved kwout');
