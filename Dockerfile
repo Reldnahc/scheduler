@@ -6,7 +6,7 @@ COPY package-lock.json ./
 COPY tsconfig.json ./
 COPY src ./src
 
-RUN npm install -g ts-node
+RUN npm install -g ts-node \
 run npm install typescript -g
 RUN npm install
 RUN npm run build

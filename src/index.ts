@@ -1,4 +1,4 @@
-import DiscordJS, {Intents, Message, TextChannel, VoiceChannel} from 'discord.js'
+import DiscordJS, {Guild, Intents, Message, TextChannel, VoiceChannel} from 'discord.js'
 import dotenv from 'dotenv'
 import mongoose from "mongoose";
 import {Server, User} from "./schemas";
@@ -6,6 +6,7 @@ import {TaskFactory} from "./task";
 import {CommandManager} from "./commands/CommandManager";
 import {parseInt} from "lodash";
 import {AxiosResponse, default as axios} from "axios";
+
 const cronReq = require('cron');
 const _ = require('lodash');
 
@@ -13,6 +14,7 @@ dotenv.config()
 
 const uri = process.env.DB;
 let cronMap = new Map<string, any>();
+let kwoutCronJob: any;
 const client = new DiscordJS.Client({
     intents: [
         Intents.FLAGS.GUILDS,
@@ -76,6 +78,12 @@ export async function restartCronJob(job: any, guildId: string) {
     await setupCronJob(job, guildId);
 }
 
+export async function restartKwoutJob(guild: Guild){
+    kwoutCronJob.stop();
+
+    await setupKwoutJob(guild);
+}
+
 export async function setupCronJob(job: { searchTerms: any; frequency: number; message: string; job: string; channelId: string; cronJob: string; name: string }, guildId: string){
     let task = taskFactory.createTask(job,guildId);
     function runTask(){
@@ -87,37 +95,43 @@ export async function setupCronJob(job: { searchTerms: any; frequency: number; m
     cronMap.set(job.name,cronJob);
 }
 
+function setupKwoutJob(guild: Guild) {
+
+    async function moveKwout() {
+        const server = await Server.findOne({discId: guild.id});
+        const kwouts = await guild.members.fetch({
+            user: server.deafenUsers as string[],
+            force: true
+        }).catch((error: any) => {
+            console.log(error);
+        });
+        const kwoutDeafChannel = await guild.channels.fetch(server.deafenChannel).catch((error: any) => {
+            console.log(error);
+        });
+        if (kwouts && kwoutDeafChannel) {
+            for (const [key, kwout] of kwouts) {
+                const kwoutVoice = kwout.voice;
+                if (kwoutVoice.selfDeaf && kwoutVoice.channel != null && kwoutVoice.channel.id != kwoutDeafChannel.id) {
+                    await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel).catch();
+                    console.log('Moved ' + key + 'to the deafen channel: ' + kwoutDeafChannel);
+                }
+            }
+        }
+    }
+
+    kwoutCronJob = new cronReq.CronJob("* * * * *", moveKwout);
+    kwoutCronJob.start();
+    console.log('started kwout job');
+}
+
 async function setupCronJobs() {
     for (const guild of client.guilds.cache) {
-        let server = await Server.findOne({discId: guild[0]});
+        const server = await Server.findOne({discId: guild[0]});
         if(server){
             for(const job of server.cronJobs){
                 await setupCronJob(job, guild[0]);
             }
-
-            async function moveKwout(){
-               let kwout = await guild[1].members.fetch({user: '235231820583534594', force: true}).catch((error: any) => {
-                   console.log(error);
-               });
-               const kwoutDeafChannel = await guild[1].channels.fetch('966475687345135626').catch((error: any) => {
-               });
-               console.log('Trying to move kwout');
-               if(kwout && kwoutDeafChannel){
-                   const kwoutVoice = kwout.voice;
-                   console.log(kwoutVoice.selfDeaf);
-                   console.log(kwoutVoice.channel?.name);
-                   if (kwoutVoice.selfDeaf && kwoutVoice.channel != null && kwoutVoice.channel.id != kwoutDeafChannel.id){
-                       await kwoutVoice.setChannel(kwoutDeafChannel as VoiceChannel).catch();
-                       console.log('Moved kwout');
-                   }
-               }else{
-                   console.error("kwout or the channel is not here");
-               }
-            }
-
-            const cronJob = new cronReq.CronJob("* * * * *", moveKwout);
-            cronJob.start();
-            console.log('started kwout job');
+            setupKwoutJob(guild[1]);
         }
     }
 }

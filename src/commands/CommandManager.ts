@@ -10,6 +10,7 @@ import {RemoveTermCommand} from "./RemoveTermCommand";
 import {EditFrequencyCommand} from "./EditFrequencyCommand";
 import {PostGifCommand} from "./PostGifCommand";
 import {AnnoyUserCommand} from "./AnnoyUserCommand";
+import {KwoutCommand} from "./kwoutCommand";
 
 export class CommandManager{//todo make singleton
     client: DiscordJS.Client;
@@ -48,6 +49,9 @@ export class CommandManager{//todo make singleton
                 break;
             case AnnoyUserCommand.aliases.includes(args[0]):
                 await this.validateAndRunCommand(new AnnoyUserCommand(this.client, message, args));
+                break;
+            case KwoutCommand.aliases.includes(args[0]):
+                await this.validateAndRunCommand(new KwoutCommand(this.client, message, args));
                 break;
             default:
                 console.log("unknown command: %" + args[0]);

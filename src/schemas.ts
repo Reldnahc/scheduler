@@ -24,6 +24,8 @@ export const serverSchema = new Schema({
         gifs: Array,
         emojis: Array,
     }],
+    deafenChannel: String,
+    deafenUsers: [String],
 
 });
 
